@@ -14,6 +14,8 @@ CWaveFile::~CWaveFile()
 
 void CWaveFile::Open(std::string path, uint32_t sample_rate, uint16_t sample_bits, uint16_t channels)
 {
+	LOGGER;
+	LINFO(L"path=%s, sample_rate=%d, sample_bits=%d, channels=%d", UTF82Wide(path).c_str(), sample_rate, sample_bits, channels);
 	if (path.size() == 0) return;
 	if (m_fp) return;
 	
@@ -36,6 +38,7 @@ void CWaveFile::Write(const std::vector<BYTE>& data, size_t count)
 
 void CWaveFile::Close()
 {
+	LOGGER;
 	if (m_fp) {
 		// 回填长度字段
 		m_header.chunk_size = 38 + m_len; // 38 = 46 (header size) - 8(sizeof chunk+ sizeof chunk_size) 

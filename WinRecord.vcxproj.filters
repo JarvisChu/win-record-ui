@@ -20,6 +20,8 @@
     <ClInclude Include="silk_file.h" />
     <ClInclude Include="wave_file.h" />
     <ClInclude Include="audio_processor.h" />
+    <ClInclude Include="log.h" />
+    <ClInclude Include="Base.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -30,6 +32,7 @@
     <ClCompile Include="silk_file.cpp" />
     <ClCompile Include="wave_file.cpp" />
     <ClCompile Include="audio_processor.cpp" />
+    <ClCompile Include="log.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WinRecord.rc">

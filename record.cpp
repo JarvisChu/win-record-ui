@@ -24,6 +24,7 @@ using namespace std;
 		std::ostringstream stream; \
 		stream << ", hr=0x" << hex << hres; \
 		strErrMsg = msg + stream.str(); \
+		LERROR(L"%s", UTF82Wide(strErrMsg).c_str());\
 		if(bCoInitializeExSucc && !bCrashed){ \
 			if(pwfx) CoTaskMemFree(pwfx); \
 			SAFE_RELEASE(pEnumerator) \
@@ -54,16 +55,18 @@ std::string Record::GetCurrentTime(){
 }
 
 Record::Record() {
-	printf("[%ld]Record::Record\n", GetCurrentThreadId());
+	LINFO(L"[%ld]Record::Record\n", GetCurrentThreadId());
 }
 
 Record::~Record() {
-	printf("[%ld]Record::~Record\n", GetCurrentThreadId());
+	LINFO(L"[%ld]Record::~Record\n", GetCurrentThreadId());
 	Stop();
 }
 
 void Record::Start(std::string audio_format, int sample_rate/* = 8000*/, int sample_bits/* = 16*/, int channel/* = 1*/) {
+	LOGGER;
 	if (m_running) {
+		LINFO(L"already running");
 		return;
 	}
 
@@ -74,6 +77,7 @@ void Record::Start(std::string audio_format, int sample_rate/* = 8000*/, int sam
 	}else if (audio_format == "silk") {
 		af = AF_SILK;
 	}else {
+		LERROR(L"unsupported audio format, only support pcm/silk currently");
 		AfxMessageBox(L"unsupported audio format, only support pcm/silk currently");
 		return;
 	}
@@ -97,7 +101,7 @@ void Record::Start(std::string audio_format, int sample_rate/* = 8000*/, int sam
 		return;
 	}
 
-	printf("Record::Record audio_format:%s, sample_rate:%d, sample_bit:%d, channel:%d \n", audio_format.c_str(), sample_rate, sample_bits, channel);
+	LINFO(L"Record::Record audio_format:%s, sample_rate:%d, sample_bit:%d, channel:%d \n", UTF82Wide(audio_format).c_str(), sample_rate, sample_bits, channel);
 
 	m_running = true;
 
@@ -116,6 +120,7 @@ void Record::Start(std::string audio_format, int sample_rate/* = 8000*/, int sam
 }
 
 void Record::Stop() {
+	LOGGER;
 	if (m_running) {
 		m_running = false;
 		if (m_record_thread_i.joinable()) {
@@ -134,7 +139,8 @@ void Record::Stop() {
 }
 
 void Record::Run(WaveSource ws){
-	printf("[%ld]Record::Run, ws:%d\n", GetCurrentThreadId(), ws);
+	LOGGER;
+	LINFO(L"[%ld]Record::Run, ws:%d\n", GetCurrentThreadId(), ws);
 
 	IMMDeviceEnumerator *pEnumerator = NULL;
 	IMMDevice *pDevice = NULL;
@@ -197,6 +203,7 @@ Recording:
 			EXIT_ON_ERROR(E_UNEXPECTED, "Invalid Wave format");
 		}
 
+		LINFO(L"ws=%d, nSamplesPerSec=%d, wBitsPerSample=%d, nChannels=%d", ws, pwfx->nSamplesPerSec, pwfx->wBitsPerSample, pwfx->nChannels);
 		if (ws == Wave_In) {
 			m_ap_i.SetOrgAudioParam(AF_PCM, pwfx->nSamplesPerSec, pwfx->wBitsPerSample, pwfx->nChannels);
 		}else{
@@ -310,7 +317,7 @@ Exit:
 
 			Sleep(100);
 
-			printf("retry: %d\n", nRetryCnt);
+			LINFO(L"retry: %d\n", nRetryCnt);
 			goto Recording;
 		}
 
@@ -319,7 +326,7 @@ Exit:
 }
 
 void Record::RunSimulate() {
-	printf("[%ld]Record::RunSimulate\n", GetCurrentThreadId());
+	LINFO(L"[%ld]Record::RunSimulate\n", GetCurrentThreadId());
 
 	while (m_running) {
 		std::vector<BYTE> audio_data;

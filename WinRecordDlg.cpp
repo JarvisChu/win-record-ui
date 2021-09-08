@@ -88,10 +88,9 @@ HCURSOR CWinRecordDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
-
 void CWinRecordDlg::OnBnClickedBtnStartRecord()
 {
+	LOGGER;
 	Record::GetInstance().Start();
 	auto btnStart = this->GetDlgItem(IDC_BTN_START_RECORD);
 	auto btnStop = this->GetDlgItem(IDC_BTN_STOP_RECORD);
@@ -102,6 +101,7 @@ void CWinRecordDlg::OnBnClickedBtnStartRecord()
 
 void CWinRecordDlg::OnBnClickedBtnStopRecord()
 {
+	LOGGER;
 	Record::GetInstance().Stop();
 	auto btnStart = this->GetDlgItem(IDC_BTN_START_RECORD);
 	auto btnStop = this->GetDlgItem(IDC_BTN_STOP_RECORD);

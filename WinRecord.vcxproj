@@ -188,6 +188,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio_processor.h" />
+    <ClInclude Include="Base.h" />
+    <ClInclude Include="log.h" />
     <ClInclude Include="record.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="silk_encoder.h" />
@@ -200,6 +202,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="audio_processor.cpp" />
+    <ClCompile Include="log.cpp" />
     <ClCompile Include="record.cpp" />
     <ClCompile Include="silk_encoder.cpp" />
     <ClCompile Include="silk_file.cpp" />

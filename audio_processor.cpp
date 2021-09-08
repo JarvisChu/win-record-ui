@@ -3,6 +3,7 @@
 #include <Windows.h>
 
 AudioProcessor::AudioProcessor(){
+	LOGGER;
 	m_offset = 0;
 
     // default settings
@@ -19,10 +20,12 @@ AudioProcessor::AudioProcessor(){
 }
 
 AudioProcessor::~AudioProcessor(){
+	LOGGER;
 	Stop();
 }
 
 void AudioProcessor::Stop(){
+	LOGGER;
 	if(m_prefix.size() > 0){
 		m_silk_file.Close();
 		m_wave_file.Close();
@@ -31,6 +34,7 @@ void AudioProcessor::Stop(){
 
 void AudioProcessor::SetOrgAudioParam(AudioFormat audio_format, int sample_rate, int sample_bits, int channel)
 {
+	LINFO(L"audio_format=%d, sample_rate=%d, sample_bits=%d, channel=%d", audio_format, sample_rate, sample_bits, channel);
 	// origin audio format: only support PCM
 	m_org_sample_rate = sample_rate;
 	m_org_sample_bits = sample_bits;
@@ -42,6 +46,7 @@ void AudioProcessor::SetOrgAudioParam(AudioFormat audio_format, int sample_rate,
 
 void AudioProcessor::SetTgtAudioParam(AudioFormat audio_format, int sample_rate, int sample_bits, int channel, std::string prefix)
 {
+	LINFO(L"audio_format=%d, sample_rate=%d, sample_bits=%d, channel=%d", audio_format, sample_rate, sample_bits, channel);
 	m_tgt_audio_format = audio_format;
 	m_tgt_sample_rate = sample_rate;
 	m_tgt_sample_bits = sample_bits;
