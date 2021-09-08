@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinRecord", "WinRecord.vcxproj", "{BB1CFC60-0ABC-47D9-94AA-6C1D97DC7F82}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BB1CFC60-0ABC-47D9-94AA-6C1D97DC7F82}.Debug|x86.ActiveCfg = Debug|Win32
+		{BB1CFC60-0ABC-47D9-94AA-6C1D97DC7F82}.Debug|x86.Build.0 = Debug|Win32
+		{BB1CFC60-0ABC-47D9-94AA-6C1D97DC7F82}.Release|x86.ActiveCfg = Release|Win32
+		{BB1CFC60-0ABC-47D9-94AA-6C1D97DC7F82}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
