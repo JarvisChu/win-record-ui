@@ -15,6 +15,7 @@ class Record {
 		void Start(std::string audio_format="pcm", int sample_rate = 8000, int sample_bits = 16, int channel = 1);
 		void Stop();
 		void Run(WaveSource ws);
+		void RunTest();
 		void RunSimulate();
 	private:
 		std::string GetCurrentTime();
@@ -31,6 +32,7 @@ private:
 
 	DWORD m_last_time_i;
 	DWORD m_last_time_o;
+	std::string m_prefix;
 };
 
 #endif

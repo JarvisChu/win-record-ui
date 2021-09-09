@@ -106,12 +106,13 @@ void Record::Start(std::string audio_format, int sample_rate/* = 8000*/, int sam
 	m_running = true;
 
 	// file save path prefix, e.g. C:/path/to/dir/audio_filename
-	std::string prefix = GetCurrentTime();
-	m_ap_i.SetTgtAudioParam(af, sample_rate, sample_bits, channel, prefix+"_in");
+	m_prefix = GetCurrentTime();
+	m_ap_i.SetTgtAudioParam(af, sample_rate, sample_bits, channel, m_prefix+"_in");
 	std::thread tmpI(&Record::Run, this, Wave_In);
+	//std::thread tmpI(&Record::RunTest, this);
 	m_record_thread_i.swap(tmpI);
 
-	m_ap_o.SetTgtAudioParam(af, sample_rate, sample_bits, channel, prefix + "_out");
+	m_ap_o.SetTgtAudioParam(af, sample_rate, sample_bits, channel, m_prefix + "_out");
 	std::thread tmpO(&Record::Run, this, Wave_Out);
 	m_record_thread_o.swap(tmpO);
 
@@ -141,6 +142,8 @@ void Record::Stop() {
 void Record::Run(WaveSource ws){
 	LOGGER;
 	LINFO(L"[%ld]Record::Run, ws:%d\n", GetCurrentThreadId(), ws);
+
+	CWaveFile waveFile; // original audio wave file
 
 	IMMDeviceEnumerator *pEnumerator = NULL;
 	IMMDevice *pDevice = NULL;
@@ -203,10 +206,21 @@ Recording:
 			EXIT_ON_ERROR(E_UNEXPECTED, "Invalid Wave format");
 		}
 
+		std::string prefix = GetCurrentTime();
 		LINFO(L"ws=%d, nSamplesPerSec=%d, wBitsPerSample=%d, nChannels=%d", ws, pwfx->nSamplesPerSec, pwfx->wBitsPerSample, pwfx->nChannels);
 		if (ws == Wave_In) {
+			std::string name = m_prefix + std::string("_in_origin_") + 
+				std::to_string(pwfx->nSamplesPerSec) + "_" + 
+				std::to_string(pwfx->wBitsPerSample) + "_" +
+				std::to_string(pwfx->nChannels) + ".wav";
+			waveFile.Open(name, pwfx->nSamplesPerSec, pwfx->wBitsPerSample, pwfx->nChannels);
 			m_ap_i.SetOrgAudioParam(AF_PCM, pwfx->nSamplesPerSec, pwfx->wBitsPerSample, pwfx->nChannels);
 		}else{
+			std::string name = m_prefix + std::string("_out_origin_") +
+				std::to_string(pwfx->nSamplesPerSec) + "_" +
+				std::to_string(pwfx->wBitsPerSample) + "_" +
+				std::to_string(pwfx->nChannels) + ".wav";
+			waveFile.Open(name, pwfx->nSamplesPerSec, pwfx->wBitsPerSample, pwfx->nChannels);
 			m_ap_o.SetOrgAudioParam(AF_PCM, pwfx->nSamplesPerSec, pwfx->wBitsPerSample, pwfx->nChannels);
 		}
 
@@ -257,18 +271,22 @@ Recording:
 					pData = NULL;  // Tell CopyData to write silence.
 				}
 
+				if (nBlockAlign *numFramesAvailable > 0) {
+					std::vector<BYTE> vecPCM;
+					vecPCM.insert(vecPCM.end(), pData, pData + nBlockAlign *numFramesAvailable);
+					waveFile.Write(vecPCM, vecPCM.size());
+				}
+
 				// Copy the available capture data to the audio sink.
 				DWORD now = ::GetTickCount();
 				if(ws == Wave_In){
 					m_ap_i.OnAudioData(pData, nBlockAlign *numFramesAvailable);
 					if( now - m_last_time_i > 200 ){
-						//this->AddEvent(RecordEvent{EVT_IN_AUDIO,"" });
 						m_last_time_i = now;
 					}	
 				}else if(ws == Wave_Out){
 					m_ap_o.OnAudioData(pData, nBlockAlign *numFramesAvailable);
 					if( now - m_last_time_o > 200 ){
-						//this->AddEvent(RecordEvent{EVT_OUT_AUDIO, ""});
 						m_last_time_o = now;
 					}	
 				}
@@ -320,9 +338,44 @@ Exit:
 			LINFO(L"retry: %d\n", nRetryCnt);
 			goto Recording;
 		}
-
-		//this->AddEvent( RecordEvent{EVT_ERROR, strErrMsg} );
 	}
+
+	waveFile.Close();
+}
+
+void Record::RunTest() {
+	LOGGER;
+
+	FILE* fp = nullptr;
+	int ret = fopen_s(&fp, "C:\\44100_16_1.pcm", "rb");
+	if (ret != 0 || !fp) {
+		LERROR(L"open pcm file failed\n");
+		return;
+	}
+	
+	int sampleRate = 48000;//44100;
+	int sampleBits = 16;
+	int channel = 1;
+
+	m_ap_i.SetOrgAudioParam(AF_PCM, sampleRate, sampleBits, channel);
+
+	int bytesPerMillSecond = sampleRate * sampleBits * channel / 2 / 1000;
+	int shortsPer20MillSecond = bytesPerMillSecond * 20 / 2;
+
+	BYTE* buf = new BYTE[shortsPer20MillSecond*2];
+	while (m_running) {
+		int readCnt = fread(buf, sizeof(BYTE), shortsPer20MillSecond * 2, fp);
+		if (readCnt <= 0) {
+			LINFO(L"send over\n");
+			break;
+		}
+
+		m_ap_i.OnAudioData(buf, readCnt);
+
+		Sleep(20);
+	}
+	delete[]buf;
+	fclose(fp);
 }
 
 void Record::RunSimulate() {
