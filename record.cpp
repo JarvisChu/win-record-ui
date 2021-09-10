@@ -12,6 +12,9 @@
 
 using namespace std;
 
+//#define DEBUG_USING_FILE_AS_AUDIO_INPUT // 从模拟文件读取音频作为音频输入，测试用, 即 RunTest
+#define SIMULATE_FILE_PATH "C:\\44100_16_1.pcm"  // 模拟文件的地址
+
 #pragma comment(lib, "winmm.lib")
 
 // REFERENCE_TIME time units per second and per millisecond
@@ -108,14 +111,18 @@ void Record::Start(std::string audio_format, int sample_rate/* = 8000*/, int sam
 	// file save path prefix, e.g. C:/path/to/dir/audio_filename
 	m_prefix = GetCurrentTime();
 	m_ap_i.SetTgtAudioParam(af, sample_rate, sample_bits, channel, m_prefix+"_in");
+#ifdef DEBUG_USING_FILE_AS_AUDIO_INPUT
+	std::thread tmpI(&Record::RunTest, this);
+	m_record_thread_i.swap(tmpI);
+#else
 	std::thread tmpI(&Record::Run, this, Wave_In);
-	//std::thread tmpI(&Record::RunTest, this);
 	m_record_thread_i.swap(tmpI);
 
 	m_ap_o.SetTgtAudioParam(af, sample_rate, sample_bits, channel, m_prefix + "_out");
 	std::thread tmpO(&Record::Run, this, Wave_Out);
 	m_record_thread_o.swap(tmpO);
-
+#endif
+	
 	std::thread tmpS(&Record::RunSimulate, this);
 	m_simulate_using_thread.swap(tmpS);
 }
@@ -347,7 +354,7 @@ void Record::RunTest() {
 	LOGGER;
 
 	FILE* fp = nullptr;
-	int ret = fopen_s(&fp, "C:\\44100_16_1.pcm", "rb");
+	int ret = fopen_s(&fp, SIMULATE_FILE_PATH, "rb");
 	if (ret != 0 || !fp) {
 		LERROR(L"open pcm file failed\n");
 		return;
