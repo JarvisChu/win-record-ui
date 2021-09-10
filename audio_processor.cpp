@@ -38,7 +38,7 @@ void AudioProcessor::SetOrgAudioParam(AudioFormat audio_format, int sample_rate,
 	
 	// treat 44100 as 48000 to make downsampling work properly
 	if (sample_rate == 44100) {
-		sample_rate == 48000;
+		sample_rate = 48000;
 	}
 	// origin audio format: only support PCM
 	m_org_sample_rate = sample_rate;
