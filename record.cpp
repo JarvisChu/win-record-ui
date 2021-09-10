@@ -353,7 +353,7 @@ void Record::RunTest() {
 		return;
 	}
 	
-	int sampleRate = 48000;//44100;
+	int sampleRate = 44100;
 	int sampleBits = 16;
 	int channel = 1;
 
