@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+#include <vector>
 
 // CWinRecordDlg dialog
 class CWinRecordDlg : public CDialogEx
@@ -31,7 +31,10 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnBnClickedButton1();
 	afx_msg void OnBnClickedBtnStartRecord();
 	afx_msg void OnBnClickedBtnStopRecord();
+	afx_msg void OnBnClickedBtnBrowserFile();
+	afx_msg void OnBnClickedBtnConvert2wave();
+private:
+	std::vector<CString> m_vecPCMFiles;
 };

@@ -19,9 +19,10 @@ void CWaveFile::Open(std::string path, uint32_t sample_rate, uint16_t sample_bit
 	if (path.size() == 0) return;
 	if (m_fp) return;
 	
-	m_path = path;
-	errno_t err = fopen_s(&m_fp, m_path.c_str(), "wb");
-	if (err != 0){
+	std::wstring wpath = UTF82Wide(path);
+	errno_t err = _wfopen_s(&m_fp, wpath.c_str(), L"wb");
+	if (err != 0) {
+		printf("open wave file failed, %s\n", path.c_str());
 		return;
 	}
 
